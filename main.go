@@ -7,12 +7,11 @@ import (
 )
 
 func main() {
-	mux := router.SetupRoutes()
+	handler := router.SetupRoutes()
+	log.Println("starting server ...")
 
-	err := http.ListenAndServe(":4001", mux)
+	err := http.ListenAndServe(":4001", handler)
 	if err != nil {
 		log.Fatalf("error starting the server: %s", err.Error())
 	}
-	log.Println("server started successfully")
-
 }

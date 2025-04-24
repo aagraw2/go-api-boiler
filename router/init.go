@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func SetupRoutes() *http.ServeMux {
+func SetupRoutes() http.Handler {
 	mux := http.NewServeMux()
 
 	userRepository := repository.NewUserRepository()
@@ -16,5 +16,15 @@ func SetupRoutes() *http.ServeMux {
 
 	mux.HandleFunc("/api/user/get", userController.GetUsers)
 	mux.HandleFunc("/api/user/create", userController.CreateUsers)
-	return mux
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handler, pattern := mux.Handler(r)
+		if pattern == "" {
+			// Custom 404 Error
+			http.Error(w, "Route not found", http.StatusNotFound)
+			return
+		}
+		handler.ServeHTTP(w, r)
+	})
+
 }
