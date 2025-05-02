@@ -2,6 +2,7 @@ package repository
 
 import (
 	"go-api-boiler/models"
+	"go-api-boiler/utils"
 	"sync"
 )
 
@@ -11,28 +12,26 @@ type UserRepository interface {
 }
 
 type userRepo struct {
-	users []models.User
-	mu    sync.Mutex
+	db *utils.InMemoryDB
+	mu sync.Mutex
 }
 
-func NewUserRepository() UserRepository {
+func NewUserRepository(db *utils.InMemoryDB) UserRepository {
 	return &userRepo{
-		users: []models.User{
-			{ID: 1, Name: "Alice", Email: "alice@example.com"},
-		},
+		db: db,
 	}
 }
 
 func (r *userRepo) GetUsers() []models.User {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	return r.users
+	return r.db.Users
 }
 
 func (r *userRepo) CreateUser(user models.User) models.User {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	user.ID = uint64(len(r.users) + 1) // auto-increment
-	r.users = append(r.users, user)
+	user.ID = uint64(len(r.db.Users) + 1) // Auto-increment
+	r.db.Users = append(r.db.Users, user)
 	return user
 }

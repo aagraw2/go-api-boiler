@@ -4,13 +4,15 @@ import (
 	"go-api-boiler/controller"
 	"go-api-boiler/repository"
 	"go-api-boiler/service"
+	"go-api-boiler/utils"
 	"net/http"
 )
 
 func SetupRoutes() http.Handler {
 	mux := http.NewServeMux()
 
-	userRepository := repository.NewUserRepository()
+	sharedDB := utils.GetDBInstance()
+	userRepository := repository.NewUserRepository(sharedDB)
 	userService := service.NewUserService(userRepository)
 	userController := controller.NewUserController(userService)
 
