@@ -10,12 +10,19 @@ import (
 func SetupRoutes() http.Handler {
 	mux := http.NewServeMux()
 
-	userRepository := repository.NewUserRepository()
-	userService := service.NewUserService(userRepository)
-	userController := controller.NewUserController(userService)
+	clientRepo := repository.NewClientRepository()
+	dependencyRepository := repository.NewDependencyRepository()
+	featureRepository := repository.NewFeatureRepository(clientRepo)
 
-	mux.HandleFunc("/api/user/get", userController.GetUsers)
-	mux.HandleFunc("/api/user/create", userController.CreateUsers)
+	featureService := service.NewFeatureService(featureRepository, clientRepo, dependencyRepository)
+	featureController := controller.NewFeatureController(featureService)
+
+	mux.HandleFunc("/api/feature/update", featureController.UpdateFeature)
+
+	dependencyService := service.NewDependencyService(dependencyRepository)
+	dependencyController := controller.NewDependencyController(dependencyService)
+
+	mux.HandleFunc("/api/dependency/add", dependencyController.UpdateDependency)
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handler, pattern := mux.Handler(r)
